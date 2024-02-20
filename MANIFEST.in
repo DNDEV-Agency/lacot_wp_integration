@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include lacot_wp_integration *.css
+recursive-include lacot_wp_integration *.csv
+recursive-include lacot_wp_integration *.html
+recursive-include lacot_wp_integration *.ico
+recursive-include lacot_wp_integration *.js
+recursive-include lacot_wp_integration *.json
+recursive-include lacot_wp_integration *.md
+recursive-include lacot_wp_integration *.png
+recursive-include lacot_wp_integration *.py
+recursive-include lacot_wp_integration *.svg
+recursive-include lacot_wp_integration *.txt
+recursive-exclude lacot_wp_integration *.pyc
