@@ -31,7 +31,9 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Woocommerce Settings" : "public/js/woocommerce_settings.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -95,13 +97,32 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
-# }
+doc_events = {
+	"Purchase Receipt": {
+		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
+		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
+	},
+	"Purchase Invoice": {
+		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
+		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
+	},
+	"Stock Entry": {
+		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
+		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
+	},
+	"Pick List": {
+		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
+		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
+	},
+	"Sales Invoice": {
+		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
+		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
+	},
+	"Delivery Note": {
+		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
+		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
+	},
+}
 
 # Scheduled Tasks
 # ---------------
