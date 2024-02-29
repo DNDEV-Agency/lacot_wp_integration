@@ -159,7 +159,7 @@ def get_items_qty(item_codes: list, warehouse: str):
     if len(item_codes):
         for item_code in item_codes:
             stock = get_data(item_code=item_code, warehouse=warehouse)
-            qty = reduce(lambda x, y: x + y, [item.get("actual_qty") for item in stock])
+            qty = sum(item.get("actual_qty") for item in stock) if stock else 0
             item_code_qty[item_code] = qty
     else:
         stock = get_data(warehouse=warehouse)
