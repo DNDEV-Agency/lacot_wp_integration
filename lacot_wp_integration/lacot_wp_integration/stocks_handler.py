@@ -4,8 +4,7 @@ from frappe.utils import cint, flt
 
 from functools import reduce
 from woocommerce import API
-from lacot_wp_integration.utils import make_batches 
-
+from lacot_wp_integration.utils import make_batches, DEFAULT_BATCH_SIZE
 
 # Get items stock data
 def get_data(
@@ -110,7 +109,7 @@ def handle_stock_update(doc, trigger):
     print("////////////////////////////")
     print("syncing items", item_codes)
     print("////////////////////////////")
-    frappe.enqueue(sync_items_stock_woocommerce, item_codes=list(item_codes), enqueue_after_commit=True)
+    frappe.enqueue(sync_items_stock_woocommerce, queue="long", item_codes=list(item_codes), enqueue_after_commit=True)
 
 def get_woocommerce_conn():
     woocommerce_settings = frappe.get_single("Woocommerce Settings")
@@ -125,33 +124,39 @@ def get_woocommerce_conn():
         consumer_key=woocommerce_settings.api_consumer_key,
         consumer_secret=woocommerce_settings.api_consumer_secret,
         wp_api=True, # Enable the WP REST API integration
-        version="wc/v3" # WooCommerce WP REST API version
+        version="wc/v3", # WooCommerce WP REST API version
+        timeout=60
     )
 
 def get_items_ids_woocommerce(item_codes: list):
-    wcapi = get_woocommerce_conn()
-    products = wcapi.get("products", params={"sku": ",".join(item_codes)})
-    if not products.ok:
-        print(products.content)
+    try:
+        wcapi = get_woocommerce_conn()
+        products = wcapi.get("products", params={"sku": ",".join(item_codes), "per_page": DEFAULT_BATCH_SIZE})
+        if not products.ok:
+            raise Exception(products.content)
+        products = products.json()
+        return {product.get("sku"): product.get("id") for product in products}
+    except Exception as e:
         frappe.log_error(
             title="Failed to fetch products from WooCommerce",
-            message=products.content
+            message=str(e)
         )
-        return {}
-    products = products.json()
-    return {product.get("sku"): product.get("id") for product in products}
+    return {}
 
 def batch_update_woocommerce(item_codes: list, item_qty_map: dict):
-    wcapi = get_woocommerce_conn()
-    item_ids = get_items_ids_woocommerce(item_codes)
-    payload = {
-        "update": [{"id": item_ids.get(item_code), "stock_quantity": item_qty_map.get(item_code)} for item_code in item_codes],
-    }
-    res = wcapi.post("products/batch", payload)
-    if not res.ok:
+    try:
+        wcapi = get_woocommerce_conn()
+        item_ids = get_items_ids_woocommerce(item_codes)
+        payload = {
+            "update": [{"id": item_ids.get(item_code), "stock_quantity": item_qty_map.get(item_code)} for item_code in item_codes],
+        }
+        res = wcapi.post("products/batch", payload)
+        if not res.ok:
+            raise Exception(res.content)
+    except Exception as e:
         frappe.log_error(
-            title=f"Failed to update stock for products {', '.join(item_codes)}",
-            message=res.content
+            title="Failed to update stock for products",
+            message=str(e)
         )
 
 def get_items_qty(item_codes: list, warehouse: str):
@@ -175,29 +180,20 @@ def get_items_qty(item_codes: list, warehouse: str):
 
 def sync_items_stock_woocommerce(item_codes: list = []):
     warehouse = frappe.get_single("Woocommerce Settings").warehouse
+    
+    if not len(item_codes):
+        item_codes = frappe.get_all("Item", fields=["item_code"], filters={"disabled": 0})
+        item_codes = [item.get("item_code") for item in item_codes]
+    
     if len(item_codes):
-        batches = make_batches(item_codes, 100)
+        batches = make_batches(item_codes, DEFAULT_BATCH_SIZE)
         for batch in batches:
             item_code_qty = get_items_qty(batch, warehouse)
             batch_update_woocommerce(batch, item_code_qty)
-    else:
-        stock_data = get_data(warehouse=warehouse)
-        batches = make_batches(stock_data, 100)
-        for batch in batches:
-            item_code_qty = {}
-            for item in batch:
-                item_code = item.get("item_code")
-                actual_qty = item.get("actual_qty")
-                if actual_qty > 0:
-                    if item_code in item_code_qty:
-                        item_code_qty[item_code] += actual_qty
-                    else:
-                        item_code_qty[item_code] = actual_qty
-            batch_update_woocommerce(list(item_code_qty.keys()), item_code_qty)
 
 @frappe.whitelist()
 def sync_items_stock_woocommerce_background():
-    return frappe.enqueue(sync_items_stock_woocommerce, enqueue_after_commit=True)
+    return frappe.enqueue(sync_items_stock_woocommerce, queue="long", enqueue_after_commit=True)
 
 def sync_item_stock_woocommerce(item_code: str, qty: int):
     wcapi = get_woocommerce_conn()
