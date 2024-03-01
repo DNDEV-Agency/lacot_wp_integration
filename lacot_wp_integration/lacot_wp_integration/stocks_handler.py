@@ -109,7 +109,7 @@ def handle_stock_update(doc, trigger):
     print("////////////////////////////")
     print("syncing items", item_codes)
     print("////////////////////////////")
-    frappe.enqueue(sync_items_stock_woocommerce, queue="long", item_codes=list(item_codes), enqueue_after_commit=True)
+    frappe.enqueue(sync_items_stock_woocommerce, item_codes=list(item_codes), enqueue_after_commit=True)
 
 def get_woocommerce_conn():
     woocommerce_settings = frappe.get_single("Woocommerce Settings")
