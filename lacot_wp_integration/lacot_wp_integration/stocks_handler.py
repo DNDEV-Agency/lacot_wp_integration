@@ -193,7 +193,7 @@ def sync_items_stock_woocommerce(item_codes: list = []):
 
 @frappe.whitelist()
 def sync_items_stock_woocommerce_background():
-    return frappe.enqueue(sync_items_stock_woocommerce, queue="long", enqueue_after_commit=True)
+    frappe.enqueue(sync_items_stock_woocommerce, queue="long", enqueue_after_commit=True)
 
 def sync_item_stock_woocommerce(item_code: str, qty: int):
     wcapi = get_woocommerce_conn()
