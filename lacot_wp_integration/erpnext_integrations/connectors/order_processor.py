@@ -3,7 +3,7 @@ from frappe import _
 from frappe.utils import cstr
 from erpnext.selling.doctype.sales_order.sales_order import make_sales_invoice, make_delivery_note
 from erpnext.accounts.doctype.payment_entry.payment_entry import get_payment_entry   
-from erpnext.erpnext_integrations.connectors.woocommerce_connection import (
+from ecommerce_integrations.woocommerce.woocommerce_connection import (
 	link_items,
 	create_contact,
 	create_address,

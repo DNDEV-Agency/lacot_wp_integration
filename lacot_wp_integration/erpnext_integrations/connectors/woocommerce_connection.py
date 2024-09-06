@@ -2,7 +2,7 @@ import json
 
 import frappe
 from frappe import _
-from erpnext.erpnext_integrations.connectors.woocommerce_connection import (
+from ecommerce_integrations.woocommerce.woocommerce_connection import (
 	verify_request
 )
 from lacot_wp_integration.erpnext_integrations.connectors.order_processor import OrderProcessor
