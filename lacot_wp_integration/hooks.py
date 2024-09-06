@@ -122,6 +122,10 @@ doc_events = {
 		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
 		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
 	},
+	"Stock Reconciliation": {
+		"on_submit": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update",
+		"on_cancel": "lacot_wp_integration.lacot_wp_integration.stocks_handler.handle_stock_update"
+	}
 }
 
 # Scheduled Tasks
