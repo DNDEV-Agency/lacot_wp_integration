@@ -153,9 +153,9 @@ doc_events = {
 # Overriding Methods
 # ------------------------------
 #
-# override_whitelisted_methods = {
-#	"frappe.desk.doctype.event.event.get_events": "lacot_wp_integration.event.get_events"
-# }
+override_whitelisted_methods = {
+	"erpnext.erpnext_integrations.connectors.woocommerce_connection.order": "lacot_wp_integration.erpnext_integrations.connectors.woocommerce_connection.order"
+}
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
